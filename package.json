@@ -2,7 +2,7 @@
   "name": "axios-nest",
   "version": "1.0.0",
   "description": "",
-  "main": "/dist/axios-nest.js",
+  "main": "./dist",
   "scripts": {
     "dev": "webpack serve",
     "build": "webpack --config webpack.pro.config.js",
