@@ -1,3 +1,4 @@
+import './api/index'
 import Vue from 'vue'
 import App from './App.vue'
 

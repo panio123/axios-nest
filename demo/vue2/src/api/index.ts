@@ -7,4 +7,7 @@ let _axios = axios.create();
 
 let axiosNest = new AxiosNest(_axios);
 
-// Vue.prototype.$api = axiosNest.buildApiList(config);
+let api = axiosNest.buildApiList(config);
+Vue.prototype.$api = api;
+
+export default api;

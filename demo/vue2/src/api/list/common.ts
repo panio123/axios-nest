@@ -1,6 +1,4 @@
-import { NestApiListConfig } from "axios-nest";
-
-const common: NestApiListConfig = {
+const common = {
   login: "/user/login",
   upload: {
     img: "/upload/img",

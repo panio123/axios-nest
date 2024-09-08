@@ -1,6 +1,4 @@
-import { NestApiListConfig } from "axios-nest/dist/nest";
-
-let order: NestApiListConfig = {
+let order = {
   list: '/order/list',
   info: '/order/info',
 }

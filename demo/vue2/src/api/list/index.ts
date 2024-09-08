@@ -1,8 +1,8 @@
-import { NestApiListConfig } from 'axios-nest/dist/nest';
+import { NestApiListConfig } from 'axios-nest';
 import common from './common';
 import order from './order';
 
-let config: NestApiListConfig = {
+let config = {
   common,
   order,
 }

@@ -7,14 +7,14 @@ type IsAxiosRequestConfig<T> = T extends AxiosRequestConfig ? true : false;
 export interface NestApiListConfig {
   [key: string]: string | NestApiListConfig | AxiosRequestConfig | undefined,
 }
+export type NestApiList<T> = {
+  [K in keyof T]: T[K] extends string | IsAxiosRequestConfig<T> ? NestInstance : NestApiList<T[K]>;
+}
 
 export interface RequestHandler<T = any> {
   (config?: AxiosRequestConfig, axios?: Axios): Promise<AxiosResponse<T, any>>
 }
 
-export type NestApiList<T> = {
-  [K in keyof T]: T[K] extends string | IsAxiosRequestConfig<T> ? NestInstance : NestApiList<T[K]>;
-}
 
 function bind(fn: any, thisArg: any) {
   return function wrap() {
@@ -31,6 +31,7 @@ class Nest {
   }
 
   private mergeConfig(config: AxiosRequestConfig = {}): AxiosRequestConfig {
+    // @ts-ignore
     let _config = axios.mergeConfig(config, { ...this.config });
     return _config;
   }
@@ -91,7 +92,7 @@ export default class AxiosNest {
   }
 
 
-  public buildApiList<T extends NestApiListConfig>(config: T): NestApiList<T> {
+  public buildApiList<T extends Record<string, any>>(config: T): NestApiList<T> {
     const that = this;
     const handler = {
       get(target: any, prop: string) {

@@ -1,4 +1,5 @@
 import Vue, { VNode } from 'vue'
+import api from './api/index'
 
 declare global {
   namespace JSX {
@@ -9,10 +10,8 @@ declare global {
     }
   }
 }
-
 declare module 'vue/types/vue' {
-  // 3. 声明为 Vue 补充的东西
-  interface VueConstructor {
-    $myProperty: string
+  interface Vue {
+    $api: typeof api
   }
 }
