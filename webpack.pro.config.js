@@ -4,7 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: './src/index.ts',
   output: {
-    filename: 'axios-nest.js',
+    filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
     library: 'AxiosNest',
     libraryTarget: 'umd', // 使用 Universal Module Definition 格式
