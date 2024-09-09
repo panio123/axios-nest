@@ -7,6 +7,8 @@ export interface NestApiListConfig {
 }
 export type NestApiList<T> = {
   [K in keyof T]: T[K] extends string | IsAxiosRequestConfig<T> ? NestHandler : NestApiList<T[K]>;
+} & {
+  axios: Axios
 }
 export interface RequestHandler<T = any> {
   (config?: AxiosRequestConfig, axios?: Axios): Promise<AxiosResponse<T, any>>
@@ -118,7 +120,6 @@ export default class AxiosNest {
   private createNest(config: AxiosRequestConfig): NestHandler {
     let context = new Nest(config, this.axios);
     let nest: NestHandler = bind(Nest.prototype.request, context) as unknown as NestHandler;
-    nest.$axios = this.axios;
     return new Proxy(nest, {
       get(target: any, prop: any) {
         return Reflect.get(context, prop);
