@@ -1,18 +1,19 @@
-import axios, { Axios, AxiosRequestConfig, AxiosResponse } from "axios";
+import { Axios, AxiosRequestConfig, AxiosResponse } from "axios";
 
-
-// type MergeConfig = (config1: AxiosRequestConfig, config2: AxiosRequestConfig) => AxiosRequestConfig;
-type IsAxiosRequestConfig<T> = T extends AxiosRequestConfig ? true : false;
+export type IsAxiosRequestConfig<T> = T extends AxiosRequestConfig ? true : false;
 
 export interface NestApiListConfig {
   [key: string]: string | NestApiListConfig | AxiosRequestConfig | undefined,
 }
 export type NestApiList<T> = {
-  [K in keyof T]: T[K] extends string | IsAxiosRequestConfig<T> ? NestInstance : NestApiList<T[K]>;
+  [K in keyof T]: T[K] extends string | IsAxiosRequestConfig<T> ? NestHandler : NestApiList<T[K]>;
 }
-
 export interface RequestHandler<T = any> {
   (config?: AxiosRequestConfig, axios?: Axios): Promise<AxiosResponse<T, any>>
+}
+export interface NestHandler<T = any, R = AxiosResponse<T>, D = any> extends Nest {
+  (config: AxiosRequestConfig<D>): Promise<R>;
+  $axios: Axios;
 }
 
 
@@ -23,7 +24,7 @@ function bind(fn: any, thisArg: any) {
 }
 
 class Nest {
-  private config: AxiosRequestConfig = {};
+  public config: AxiosRequestConfig = {};
   public $axios: Axios;
   constructor(config: AxiosRequestConfig, axios: Axios) {
     this.config = config;
@@ -32,11 +33,12 @@ class Nest {
 
   private mergeConfig(config: AxiosRequestConfig = {}): AxiosRequestConfig {
     // @ts-ignore
-    let _config = axios.mergeConfig(config, { ...this.config });
+    let _config = Object.assign({ ...this.config, ...config });
+    console.log(_config, this.config, config, _config === config)
     return _config;
   }
 
-  public request<T = any, R = AxiosResponse<T>, D = any>(config: AxiosRequestConfig = {}) {
+  public request<T = any, R = AxiosResponse<T>, D = any>(config: AxiosRequestConfig<D> = {}) {
     return this.$axios.request<T, R, D>(this.mergeConfig(config));
   }
 
@@ -81,10 +83,6 @@ class Nest {
 
 }
 
-declare interface NestInstance extends Nest {
-  <T = any, R = AxiosResponse<T>, D = any>(config: AxiosRequestConfig<D>): Promise<R>;
-}
-
 export default class AxiosNest {
   public axios: Axios;
   constructor(axios: Axios) {
@@ -117,53 +115,18 @@ export default class AxiosNest {
     return new Proxy(config, handler) as NestApiList<T>;
   }
 
-  private createNest(config: AxiosRequestConfig): Nest {
+  private createNest(config: AxiosRequestConfig): NestHandler {
     let context = new Nest(config, this.axios);
-    let nest = bind(Nest.prototype.request, context);
+    let nest: NestHandler = bind(Nest.prototype.request, context) as unknown as NestHandler;
+    nest.$axios = this.axios;
     return new Proxy(nest, {
       get(target: any, prop: any) {
-        return Reflect.get(context, prop) ?? Reflect.get(context.$axios, prop);
+        return Reflect.get(context, prop);
       },
       set(target: any, prop: any, value: any) {
         return Reflect.set(target, prop, value);
       }
-    }) as unknown as Nest;
+    }) as unknown as NestHandler;
   }
-
-
-  // public buildApiList<T extends NestApiListConfig>(config: T): NestApiList<T> {
-  //   const that = this;
-  //   const handler = {
-  //     get(target: any, prop: string) {
-  //       const value = target[prop];
-  //       if (typeof value === 'string') {
-  //         return that.createRequestHanlder({
-  //           url: value,
-  //         });
-  //       }
-  //       if (typeof value === 'object') {
-  //         // 如果对象中有 'url' 属性，返回 Nest 实例
-  //         if ('url' in value) {
-  //           return that.createRequestHanlder({
-  //             ...value,
-  //           });
-  //         }
-  //         // 否则递归处理对象的属性
-  //         return new Proxy(value, handler);
-  //       }
-  //     }
-  //   };
-
-  //   return new Proxy(config, handler) as NestApiList<T>;
-  // }
-
-  // private createRequestHanlder(config: AxiosRequestConfig) {
-  //   const that = this;
-  //   return function <T>(userConfig: AxiosRequestConfig, axios?: axios) {
-  //     const _config = (axios ?? that.axios).mergeConfig(config, userConfig);
-  //     return that.axios.request<T>(_config);
-  //   }
-  // }
-
 
 }
