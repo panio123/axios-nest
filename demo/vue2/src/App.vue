@@ -13,7 +13,6 @@ import { Component, Vue } from "vue-property-decorator";
 export default class App extends Vue {
   async login() {
     try {
-      this.$api.common.login.$axios;
       await this.$api.common.login({
         url: "/432",
       });

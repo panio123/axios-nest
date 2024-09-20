@@ -8,7 +8,7 @@ export interface NestApiListConfig {
 export type NestApiList<T> = {
   [K in keyof T]: T[K] extends string | IsAxiosRequestConfig<T> ? NestHandler : NestApiList<T[K]>;
 } & {
-  axios: Axios
+  $axios: Axios;
 }
 export interface RequestHandler<T = any> {
   (config?: AxiosRequestConfig, axios?: Axios): Promise<AxiosResponse<T, any>>
@@ -36,7 +36,6 @@ class Nest {
   private mergeConfig(config: AxiosRequestConfig = {}): AxiosRequestConfig {
     // @ts-ignore
     let _config = Object.assign({ ...this.config, ...config });
-    console.log(_config, this.config, config, _config === config)
     return _config;
   }
 
