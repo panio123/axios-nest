@@ -61,6 +61,7 @@ $api.login({
 await $api.order.list({});
 
 //可以发起指定的请求
+//插件由TS编写，使用时自带属性提示功能，嵌套再多也不怕
 await $api.order.list.post(data,{});
 await $api.order.list.get(params,{});
 
